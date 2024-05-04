@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.gql.*": "graphql",
+    "avl.h": "c",
+    "__bit_reference": "c",
+    "bitset": "c"
+  }
+}
