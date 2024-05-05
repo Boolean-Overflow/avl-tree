@@ -106,7 +106,7 @@ Avl* add_student(Avl* root, Student* student) {
   else if (key < get_key(root))
     root->left = add_student(root->left, student);
   else {
-    puts("Chave já existente!");
+    puts("Número de estudante já existente!");
     return root;
   }
 
@@ -132,12 +132,16 @@ Avl* add_student(Avl* root, Student* student) {
     return rotate_left(root);
   }
 
+
   return root;
 }
 
 Avl* remove_student(Avl* root, int key) {
   // return NULL if tree does not exist
-  if (!root) return root;
+  if (!root) {
+    puts("Estudante não encontrado!");
+    return root;
+  }
 
   //
   if (key < get_key(root))
@@ -161,6 +165,7 @@ Avl* remove_student(Avl* root, int key) {
         *root = *tmp;
 
       free(tmp);
+      printf("Estudante com numero %d removido com sucesso\n", key);
     }
   }
 
@@ -204,10 +209,7 @@ Student* find_student(Avl* tree, int key) {
 
 void print_student(Student* student) {
   if (!student) return;
-  printf("[%2d] ", student->number);
-  puts(student->name);
-  puts(student->birthdate);
-  puts("");
+  printf("[%2d] %s %s\n", student->number, student->name, student->birthdate);
 }
 
 void print_in_order(Avl* tree) {
@@ -226,7 +228,6 @@ void print_students(Avl* tree) {
 
   // Print in order
   print_in_order(tree);
-  puts("");
 }
 
 Avl* mirror(Avl* tree, Avl* mirrored_tree) {
