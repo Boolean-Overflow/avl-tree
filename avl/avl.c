@@ -3,20 +3,33 @@
 #include "avl.h"
 
 // Start Utility functions
-Avl* create_node(Student studentData) {
-  Avl* node = (Avl*)malloc(sizeof(Avl));
-  if (!node) {
-    perror("Insuficient memory\n");
+Student* create_student(Student* student) {
+  Student* createdStudent = (Student*)malloc(sizeof(Student));
+  if (!createdStudent) {
+    perror("Erro de Alocação");
     return NULL;
   }
 
+  *createdStudent = *student;
+
+  return createdStudent;
+}
+
+Avl* create_node(Student* student) {
+  Avl* node = (Avl*)malloc(sizeof(Avl));
+  if (!node) {
+    perror("Erro de Alocação");
+    return NULL;
+  }
   node->left = node->right = NULL;
-  node->key = studentData.number;
-  node->student = create_student(studentData);
+  node->student = create_student(student);
   node->height = 1;
 
   return node;
 }
+
+
+
 
 int get_height(Avl* root) {
   if (!root) return 0;
@@ -63,8 +76,9 @@ Avl* rotate_left(Avl* x) {
   return y;
 }
 
-Avl* min_value_node(Avl* root) {
+Avl* min_value_from(Avl* root) {
   Avl* node = root;
+
   while (node->left)
     node = node->left;
 
@@ -77,17 +91,20 @@ int get_bf(Avl* root) {
   return get_height(root->left) - get_height(root->right);
 }
 
+int get_key(Avl* tree) {
+  return tree->student->number;
+}
+
 // Start ADT
-Avl* insert_key(Avl* root, Student studentData) {
+Avl* add_student(Avl* root, Student* student) {
+  if (!root) return create_node(student);
 
-  if (!root) return create_node(studentData);
+  int key = student->number;
 
-  int key = studentData.number;
-
-  if (key > root->key)
-    root->right = insert_key(root->right, studentData);
-  else if (key < root->key)
-    root->left = insert_key(root->left, studentData);
+  if (key > get_key(root))
+    root->right = add_student(root->right, student);
+  else if (key < get_key(root))
+    root->left = add_student(root->left, student);
   else {
     puts("Chave já existente!");
     return root;
@@ -99,18 +116,18 @@ Avl* insert_key(Avl* root, Student studentData) {
   // check balance
   int bf = get_bf(root);
 
-  if (bf > 1 && key < root->left->key)
+  if (bf > 1 && key < get_key(root->left))
     return rotate_right(root);
 
-  if (bf < -1 && key > root->right->key)
+  if (bf < -1 && key > get_key(root->right))
     return rotate_left(root);
 
-  if (bf > 1 && key > root->left->key) {
+  if (bf > 1 && key > get_key(root->left)) {
     root->left = rotate_left(root->left);
     return rotate_right(root);
   }
 
-  if (bf < -1 && key < root->right->key) {
+  if (bf < -1 && key < get_key(root->right)) {
     root->right = rotate_right(root->right);
     return rotate_left(root);
   }
@@ -118,21 +135,21 @@ Avl* insert_key(Avl* root, Student studentData) {
   return root;
 }
 
-Avl* remove_key(Avl* root, int key) {
+Avl* remove_student(Avl* root, int key) {
   // return NULL if tree does not exist
   if (!root) return root;
 
   //
-  if (key < root->key)
-    root->left = remove_key(root->left, key);
-  else if (key > root->key)
-    root->right = remove_key(root->right, key);
+  if (key < get_key(root))
+    root->left = remove_student(root->left, key);
+  else if (key > get_key(root))
+    root->right = remove_student(root->right, key);
   else {
     // checking if both children exists
     if (root->left && root->right) {
-      Avl* temp = min_value_node(root->right);
-      root->key = temp->key;
-      root->right = remove_key(root->right, temp->key);
+      Avl* temp = min_value_from(root->right);
+      root->student = temp->student;
+      root->right = remove_student(root->right, get_key(temp));
     }
     else {
       Avl* tmp = root->left ? root->left : root->right;
@@ -144,7 +161,6 @@ Avl* remove_key(Avl* root, int key) {
         *root = *tmp;
 
       free(tmp);
-      free(tmp->student);
     }
   }
 
@@ -174,32 +190,49 @@ Avl* remove_key(Avl* root, int key) {
   return root;
 }
 
-Student* find_key(Avl* tree, int key) {
+Student* find_student(Avl* tree, int key) {
   if (!tree) return NULL;
 
-  if (key > tree->key)
-    return find_key(tree->right, key);
+  if (key > get_key(tree))
+    return find_student(tree->right, key);
 
-  if (key < tree->key)
-    return find_key(tree->left, key);
+  if (key < get_key(tree))
+    return find_student(tree->left, key);
 
   return tree->student;
 }
 
-void print_tree(Avl* tree) {
+void print_student(Student* student) {
+  if (!student) return;
+  printf("[%2d] ", student->number);
+  puts(student->name);
+  puts(student->birthdate);
+  puts("");
+}
+
+void print_in_order(Avl* tree) {
   if (!tree) return;
 
   // Print in order
-  print_tree(tree->left);
-  printf("%3d", tree->key);
-  print_tree(tree->right);
+  print_students(tree->left);
 
+  print_student(tree->student);
+
+  print_students(tree->right);
+}
+
+void print_students(Avl* tree) {
+  if (!tree) return;
+
+  // Print in order
+  print_in_order(tree);
+  puts("");
 }
 
 Avl* mirror(Avl* tree, Avl* mirrored_tree) {
   if (!tree) return NULL;
 
-  mirrored_tree = insert_key(mirrored_tree, *(tree->student));
+  mirrored_tree = add_student(mirrored_tree, tree->student);
   mirrored_tree->left = mirror(tree->right, mirrored_tree->left);
   mirrored_tree->right = mirror(tree->left, mirrored_tree->right);
 

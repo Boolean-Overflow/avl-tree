@@ -50,7 +50,7 @@ int main() {
       while (!scanf("%d", &key)) {
         puts("Digite uma numero válido: ");
       }
-      root = remove_key(root, key);
+      // root = remove_key(root, key);
     }
     break;
     case 3:
@@ -60,7 +60,7 @@ int main() {
       while (!scanf("%d", &key)) {
         puts("Digite uma numero válido: ");
       }
-      puts((find_key(root, key) ? "Valor encontrado" : "Valor nao encontrado"));
+      // puts((find_key(root, key) ? "Valor encontrado" : "Valor nao encontrado"));
     }
     break;
     case 4:
