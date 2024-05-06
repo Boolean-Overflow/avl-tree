@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include<locale.h>
 #include "./avl/avl.h"
 
@@ -19,7 +20,33 @@ int isValid(int* v, int lower, int upper) {
 }
 
 int valid_date(int day, int month, int year) {
-  return 1;
+  time_t current_time = time(NULL);
+  struct tm* current_date = localtime(&current_time);
+  int current_day = current_date->tm_mday;
+  int current_month = current_date->tm_mon + 1; // tm_mon is 0-based
+  int current_year = current_date->tm_year + 1900; // tm_year is years since 1900
+
+  if (year < 1 || month < 1 || month > 12 || day < 1) return 0;
+
+  // Check if the provided date is in the future
+  if (
+    year > current_year ||
+    (year == current_year && month > current_month) ||
+    (year == current_year && month == current_month && day > current_day)
+    ) {
+    puts("Data no futuro!");
+    return 0;
+  }
+
+  // Calculating Leap years and if it is a 30 or 31 month
+  int is_leap_year = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+  int is_month_31 = ((month - 1) % 7) % 2 == 0;
+
+
+  int max_days = is_month_31 ? 31 : 30;
+  if (month == 2) max_days = is_leap_year ? 29 : 28;
+
+  return day <= max_days;
 }
 
 int main() {
@@ -44,16 +71,15 @@ int main() {
     switch (option) {
     case 1:
     insert: {
-
       int day, month, year;
       puts(" ====== INSERÇÃO ======");
 
       printf("Informe o numero do estudante: ");
       while (!isValid(&st.number, 0, __INT32_MAX__) || !!(foundStudent = find_student(tree, st.number))) {
         clearConsole();
-        puts("Numero de estudante inválido!");
+        puts("Número de estudante inválido!");
         if (foundStudent) puts("Estudante já existente!");
-        printf("Digite novamente: ");
+        printf("Informe novamente: ");
         fflush(stdin);
       }
 
@@ -96,8 +122,9 @@ int main() {
       scanf("%d", &key);
       foundStudent = find_student(tree, key);
 
-      if (foundStudent) print_student(foundStudent);
+      if (foundStudent) print_student_data(foundStudent);
       else puts("Estudante inexistente!");
+
       pause("");
     }
     break;
@@ -113,16 +140,19 @@ int main() {
     mirror: {
       puts(" ====== ESPELHO ======");
       Avl* mirrored_tree = mirror_tree(tree);
-      puts("Arvore Original");
+      puts("Árvore Original");
       print_students(tree);
       puts("");
-      puts("Arvore espelhada");
+      puts("Árvore espelhada");
       print_students(mirrored_tree);
       pause("");
     }
     break;
     default:
-      puts("By: Grupo 2");
+      puts("Obrigado ;)\nBy: Grupo 2");
+      puts("Matateu André - 20212549🤓");
+      puts("Lukeny Silva - 20220718😎");
+      puts("Kélsio Mateus -  20221473🧑‍💻");
       pause("");
     }
   } while (option != 6);

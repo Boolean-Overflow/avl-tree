@@ -15,7 +15,7 @@ typedef struct Node {
 
 Avl* add_student(Avl* tree, Student* student);
 Avl* remove_student(Avl* tree, int key);
-void print_student(Student* student);
+void print_student_data(Student* student);
 void print_students(Avl* tree);
 Student* find_student(Avl* tree, int key);
 Avl* mirror_tree(Avl* tree);
